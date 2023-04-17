@@ -1,0 +1,8 @@
+services:
+  hipmarketdb:
+    image: mongo:5.0.0
+    container_name: hip-market-db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./docker/db:/data/db
