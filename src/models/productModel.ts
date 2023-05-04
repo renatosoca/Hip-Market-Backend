@@ -25,7 +25,6 @@ const productSchema = new Schema<Product>({
   }
 }, { timestamps: true, versionKey: false });
 
-//INDICE
 productSchema.index({ title: 'text', tags: 'text' });
 
 const product: Model<Product> = models.Product || model<Product>('Product', productSchema);
