@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { revalidateAuth, userAuth, userRegister } from '../controllers';
-import { isValidRole } from '../helpers';
-import { fieldValidations } from '../middlewares';
+import { checkSession, fieldValidations } from '../middlewares';
 
 const router = Router();
 
@@ -17,9 +16,10 @@ router.post('/register', [
   check('lastname', 'El apellido es obligatorio').not().isEmpty().escape(),
   check('email', 'El correo electrónico no es válido').not().isEmpty().isEmail().escape(),
   check('password', 'La contraseña es obligatoria').not().isEmpty().escape(),
-  check('role', 'Rol no permitido').not().isEmpty().custom(isValidRole).escape(),
   fieldValidations,
 ], userRegister);
+
+router.use(checkSession);
 
 router.get('/revalidate-auth', revalidateAuth);
 

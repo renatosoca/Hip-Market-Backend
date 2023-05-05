@@ -6,6 +6,7 @@ export const registerUser = async (user: IUser): Promise<IUser> => {
   user.password = hashPassword(user.password!);
 
   const createdUser = await userModel.create(user);
+
   return createdUser;
 }
 
@@ -23,15 +24,15 @@ export const deleteUser = async (id: string): Promise<IUser | null> => {
   return deletedUser;
 }
 
-export const findUserByTerm = async (term: string) => {
-  const userExist = await userModel.findOne({ term });
+export const findUserByEmail = async (email: string) => {
+  const userExist = await userModel.findOne({ email });
 
   return userExist;
 }
 
 export const findUserById = async (id: string) => {
 
-  const userExist = await userModel.findById({ id });
+  const userExist = await userModel.findById(id);
 
   return userExist;
 }

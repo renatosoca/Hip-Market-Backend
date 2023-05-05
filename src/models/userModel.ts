@@ -15,6 +15,7 @@ const userSchema = new Schema<IUser>({
     type: String,
     enum: ['admin', 'client'],
     default: 'client',
+    required: true,
   }
 }, { timestamps: true, versionKey: false });
 
