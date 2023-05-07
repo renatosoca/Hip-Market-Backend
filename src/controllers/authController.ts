@@ -25,6 +25,21 @@ export const userAuth = async ({ body }: Request, res: Response,) => {
   }
 }
 
+export const oAuthToUser = async ({ body }: Request, res: Response,) => {
+  const { oAuthEmail } = body;
+
+  try {
+    const user = await findUserByEmail(oAuthEmail);
+
+    return res.status(200).json({
+      ok: true,
+      user,
+    })
+  } catch (error) {
+    return res.status(500).json({ ok: false, msg: 'Error del sistema, comuniquese con el administrador' });
+  }
+}
+
 export const userRegister = async ({ body }: Request, res: Response,) => {
   const { email } = body;
 
