@@ -22,12 +22,14 @@ const orderSchema = new Schema<IOrder>({
     name: { type: String, required: true },
     lastname: { type: String, required: true },
     address: { type: String, required: true },
-    address2: { type: String },
+    address2: { type: String, default: '' },
     zip: { type: String, required: true },
     city: { type: String, required: true },
     country: { type: String, required: true },
     phone: { type: String, required: true },
   },
+
+  paymentMethod: { type: String, required: true, default: 'PayPal' },
 
   numberOfProducts: { type: Number, required: true },
   subTotal: { type: Number, required: true },
@@ -35,7 +37,9 @@ const orderSchema = new Schema<IOrder>({
   total: { type: Number, required: true },
 
   isPaid: { type: Boolean, default: false },
-  paidAt: { type: Date },
+  paidAt: { type: Date, default: Date.now() },
+
+  transactionId: { type: String, default: '' },
 }, { timestamps: true, versionKey: false });
 
 const order: Model<IOrder> = models.Order || model<IOrder>('Order', orderSchema);

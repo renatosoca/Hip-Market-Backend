@@ -1,4 +1,4 @@
-import { IUser } from './user.interface';
+import { ISizes, IUser } from './';
 
 export interface IOrder {
   _id: string;
@@ -14,13 +14,15 @@ export interface IOrder {
 
   isPaid: boolean;
   paidAt?: string;
+
+  transactionId?: string;
 }
 
 export interface IOrderItem {
   _id: string;
   title: string;
   image: string;
-  size: string;
+  size: ISizes;
   slug: string;
   price: number;
   quantity: number;
