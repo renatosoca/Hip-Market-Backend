@@ -48,7 +48,6 @@ export const initialData: SeedData = {
             title: "Men's Quilted Shirt Jacket",
             gender: 'men'
         },
-
         {
             description: "Introducing the Tesla Raven Collection. The Men's Raven Lightweight Zip Up Bomber has a premium, modern silhouette made from a sustainable bamboo cotton blend for versatility in any season. The hoodie features subtle thermoplastic polyurethane Tesla logos on the left chest and below the back collar, a concealed chest pocket with custom matte zipper pulls and a french terry interior. Made from 70% bamboo and 30% cotton.",
             images: [
@@ -64,7 +63,6 @@ export const initialData: SeedData = {
             title: "Men's Raven Lightweight Zip Up Bomber Jacket",
             gender: 'men'
         },
-
         {
             description: "Introducing the Tesla Turbine Collection. Designed for style, comfort and everyday lifestyle, the Men's Turbine Long Sleeve Tee features a subtle, water-based T logo on the left chest and our Tesla wordmark below the back collar. The lightweight material is double-dyed, creating a soft, casual style for ideal wear in any season. Made from 50% cotton and 50% polyester.",
             images: [

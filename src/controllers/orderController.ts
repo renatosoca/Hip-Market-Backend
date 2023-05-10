@@ -1,5 +1,6 @@
+import axios from 'axios';
 import { Response } from 'express';
-import { IOrder, IUserRequest } from '../interfaces';
+import { IOrder, IPaypalOrderStatusResponse, IUserRequest } from '../interfaces';
 import { orderModel, productModel } from '../models';
 
 export const createOrder = async ({ body, user }: IUserRequest, res: Response) => {
@@ -22,7 +23,6 @@ export const createOrder = async ({ body, user }: IUserRequest, res: Response) =
 
     if (backendTotal !== total) return res.status(400).json({ msg: 'Verifique el carrito de compras de nuevo, el total no coincide' });
 
-    console.log('Holaaaaa')
     const newOrder = new orderModel({
       ...body,
       user: user._id,
@@ -59,26 +59,52 @@ export const getOrdersByUser = async (_: IUserRequest, res: Response) => {
   }
 }
 
-export const payOrder = async (_: IUserRequest, res: Response) => {
+export const payOrder = async ({ body }: IUserRequest, res: Response) => {
   const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || '';
   const PAYPAL_SECRET_KEY = process.env.PAYPAL_SECRET_KEY || '';
 
-  try {
-    const encodedToken = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET_KEY}`).toString("base64");
+  //Validar Sesion del usuario
 
-    const resp = await fetch(process.env.PAYPAL_OAUTH_URL || "", {
-      method: 'POST',
+  const { transactionId = '', orderId = '' } = body as { orderId: string; transactionId: string };
+
+  try {
+    const encodedToken = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET_KEY}`, 'utf-8').toString("base64");
+    const body = new URLSearchParams('grant_type=client_credentials');
+
+    const responseToken = await axios.post(process.env.PAYPAL_OAUTH_URL || "", body, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
         Authorization: `Basic ${encodedToken}`,
-      },
-      body: 'grant_type=client_credentials',
-    })
+      }
+    });
 
-    const { access_token } = await resp.json();
+    const { access_token } = responseToken.data;
+    if (!access_token) return res.status(400).json({ ok: false, msg: 'Token de paypal no confirmado' });
 
-    return res.status(201).json({ access_token });
+    const { data } = await axios.get<IPaypalOrderStatusResponse>(`${process.env.PAYPAL_ORDERS_URL}/${transactionId}`, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      }
+    });
+
+    if (data.status !== 'COMPLETED') return res.status(401).json({ ok: false, msg: 'Orden no reconocida' });
+
+    const order = await orderModel.findById(orderId);
+    if (!order) return res.status(404).json({ ok: false, msg: 'Orden no encontrada' });
+
+    if (order.total !== Number(data.purchase_units[0].amount.value)) {
+      return res.status(400).json({ ok: false, msg: `Los montos de Paypal y la orden ${order._id.toString()} no coinciden` });
+    }
+
+    order.transactionId = transactionId;
+    order.isPaid = true;
+
+    await order.save();
+
+    return res.status(201).json({
+      ok: true,
+      msg: `Orden ${order._id.toString()} pagada correctamente.`
+    });
   } catch (error) {
     console.log(error)
     return res.status(500).json({ msg: 'Error del sistema, comuniquese con el administrador' });
