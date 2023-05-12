@@ -3,6 +3,19 @@ import { Response } from 'express';
 import { IOrder, IPaypalOrderStatusResponse, IUserRequest } from '../interfaces';
 import { orderModel, productModel } from '../models';
 
+export const getOrders = async (_: IUserRequest, res: Response) => {
+  try {
+    const orders = await orderModel.find()
+      .sort({ createdAt: 'desc' })
+      .populate('user', 'name lastname email')
+      .lean();
+
+    return res.status(200).json(orders);
+  } catch (error) {
+    return res.status(500).json({ msg: 'Error del sistema, comuniquese con el administrador' });
+  }
+}
+
 export const createOrder = async ({ body, user }: IUserRequest, res: Response) => {
   if (!user) return res.status(401).json({ msg: 'Necesita autenticarse para realizar esta acción' });
   const { orderItems, total } = body as IOrder;
