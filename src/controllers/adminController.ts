@@ -1,6 +1,6 @@
-import { Response } from "express";
-import { IUserRequest } from "../interfaces";
-import { orderModel, productModel, userModel } from "../models";
+import { Request, Response } from 'express';
+import { IUserRequest } from '../interfaces';
+import { orderModel, productModel, userModel } from '../models';
 
 export const getDashboard = async (_: IUserRequest, res: Response) => {
   try {
@@ -26,6 +26,19 @@ export const getDashboard = async (_: IUserRequest, res: Response) => {
       productsWithNoInventory,
       lowInventory
     });
+  } catch (error) {
+    return res.status(500).json({ msg: 'Error del sistema, comuniquese con el administrador' });
+  }
+}
+
+export const getProducts = async (_: Request, res: Response) => {
+  try {
+    const products = await productModel
+      .find()
+      .sort({ createdAt: 'asc' })
+      .lean();
+
+    return res.status(200).json(products);
   } catch (error) {
     return res.status(500).json({ msg: 'Error del sistema, comuniquese con el administrador' });
   }
