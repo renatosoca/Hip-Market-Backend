@@ -10,6 +10,7 @@ const productSchema = new Schema<Product>({
     {
       type: String,
       enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
+      message: '{VALUE} no es una talla válida',
     }
   ],
   slug: { type: String, required: true, unique: true },
@@ -18,10 +19,14 @@ const productSchema = new Schema<Product>({
   type: {
     type: String,
     enum: ['shirts', 'hoodies', 'jacket', 'pants', 'hats'],
+    message: '{VALUE} no es una tipo válido',
+    default: 'shirts'
   },
   gender: {
     type: String,
-    enum: ['men', 'women', 'kid', 'unisex']
+    enum: ['men', 'women', 'kid', 'unisex'],
+    message: '{VALUE} no es una género válido',
+    default: 'unisex'
   }
 }, { timestamps: true, versionKey: false });
 

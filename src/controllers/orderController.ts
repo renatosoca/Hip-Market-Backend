@@ -39,6 +39,7 @@ export const createOrder = async ({ body, user }: IUserRequest, res: Response) =
     const newOrder = new orderModel({
       ...body,
       user: user._id,
+      total: total.toFixed(2),
       isPaid: false,
     });
 
