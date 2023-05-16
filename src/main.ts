@@ -8,9 +8,10 @@ import { router } from './routes';
 const app = express();
 connectDB();
 
-app.use(express.json());
 app.use(cors());
 app.use(Cookie());
+app.use(express.json());
+app.use(express.static('storage'));
 
 app.use('/api/', router);
 

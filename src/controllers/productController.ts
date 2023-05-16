@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Product } from '../interfaces';
 import { productModel } from '../models';
+import { existsSync, unlinkSync } from 'fs';
 
 export const getAllProducts = async ({ query }: Request, res: Response) => {
   let condition = {};
@@ -79,6 +80,17 @@ export const updatedProduct = async ({ params, body }: Request, res: Response) =
     const product = await productModel.findById(id);
     if (!product) return res.status(404).json({ msg: 'Producto no encontrado' });
 
+    product.images.forEach(async (image) => {
+      if (!images.includes(image)) {
+        const fileExtension = image.substring(image.lastIndexOf('/') + 1);
+        const directoryStorage = `${process.cwd()}/storage/${fileExtension}`;
+
+
+        if (!existsSync(directoryStorage)) return;
+        unlinkSync(directoryStorage)
+      }
+    })
+
     const updatedProduct = await productModel.findByIdAndUpdate(id, body, { new: true });
 
     return res.status(200).json(updatedProduct);
@@ -98,5 +110,43 @@ export const searchProducts = async ({ params }: Request, res: Response) => {
     return res.status(200).json({ products });
   } catch (error) {
     return res.status(500).json({ msg: 'Error del sistema, comunicate con el administrador' });
+  }
+}
+
+export const uploadFiles = async ({ file }: Request, res: Response) => {
+  if (!file) return res.status(400).json({ msg: 'No se ha seleccionado ningun archivo' });
+  const { filename } = file;
+  const imageFile = process.env.BACKEND_URI + '/' + filename;
+
+  try {
+
+    return res.status(201).json({
+      ok: true,
+      imageFile,
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ msg: 'Error del sistema, comunicate con el administrador' });
+  }
+}
+
+export const deleteFiles = ({ body }: Request, res: Response) => {
+  const { image = '' } = body as { image: string };
+
+  try {
+    const imageName = image.substring(image.lastIndexOf('/') + 1);
+    const directoryStorage = `${process.cwd()}/storage/${imageName}`;
+
+    if (!existsSync(directoryStorage)) return res.status(404).json({ ok: false, msg: 'Imagen no encontrada' });
+
+    unlinkSync(directoryStorage);
+
+    return res.status(201).json({
+      ok: true,
+      msg: 'Imagen eliminada con exito'
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ ok: false, msg: 'Error del sistema, comunicate con el administrador' });
   }
 }
